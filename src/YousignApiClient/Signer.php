@@ -190,7 +190,6 @@ class Signer
                 }
             }
         }
-var_dump($fieldsJson);
         $mode = $this->getSignatureAuthenticationModeJson();
 
         return <<< JSON
