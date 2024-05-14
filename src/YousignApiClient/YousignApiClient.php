@@ -251,6 +251,7 @@ class YousignApiClient
         $activatedSignatureRequestResponse = curl_exec($ch);
         $responseArray = json_decode($activatedSignatureRequestResponse, true);
         curl_close($ch);
+        //TODO: faire mieux
         if (isset($responseArray['signers'][0]['signature_link'])) {
             // Si un lien de signature est retourné dans la réponse, cela signifie que la demande de signature a été envoyée avec succès
             $signer1MagicLink = $responseArray['signers'][0]['signature_link'];

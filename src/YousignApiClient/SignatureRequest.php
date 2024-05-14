@@ -13,7 +13,7 @@ class SignatureRequest
     private ?string $customExperienceId = null;
     private ?string $externalId = null;
     private ?string $auditTrailLocale = null;
-    private ?bool $signersAllowedToDecline = null;
+    private bool $signersAllowedToDecline = false;
     private ?\DateTime $expirationDate = null;
     private const DELIVERY_MODE_NONE = 'none';
     private const DELIVERY_MODE_EMAIL = 'email';
@@ -126,12 +126,12 @@ class SignatureRequest
         return $this;
     }
 
-    public function getSignersAllowedToDecline(): ?bool
+    public function getSignersAllowedToDecline(): bool
     {
         return $this->signersAllowedToDecline;
     }
 
-    public function setSignersAllowedToDecline(?bool $signersAllowedToDecline): SignatureRequest
+    public function setSignersAllowedToDecline(bool $signersAllowedToDecline): SignatureRequest
     {
         $this->signersAllowedToDecline = $signersAllowedToDecline;
         return $this;
@@ -151,13 +151,15 @@ class SignatureRequest
     public function toJson(): string
     {
         $orderedSigners = $this->orderedSigners ? 'true' : 'false';
+        $signersAllowedToDecline = $this->signersAllowedToDecline ? 'true' : 'false';
         return <<< JSON
         {
           "name": "$this->name",
           "delivery_mode":"$this->deliveryMode",
           "timezone": "$this->timezone",
           "ordered_signers": $orderedSigners,
-          "custom_experience_id": "$this->customExperienceId"
+          "custom_experience_id": "$this->customExperienceId",
+          "signers_allowed_to_decline": $signersAllowedToDecline
         }
         JSON;
     }
