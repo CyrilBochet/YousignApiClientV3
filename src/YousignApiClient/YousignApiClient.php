@@ -204,6 +204,7 @@ class YousignApiClient
             throw new \RuntimeException('Failed to add signer: ' . $response);
         }
     }
+
     public function addApprover(Approver $approver): Approver
     {
         $ch = curl_init();
@@ -342,10 +343,11 @@ class YousignApiClient
                 ),
             ]
         );
-        $response  = curl_exec($ch);
+        $response = curl_exec($ch);
         curl_close($ch);
     }
-    public function listWebhook()
+
+    public function listWebhooks(): bool|string
     {
         $curl = curl_init();
 
@@ -364,12 +366,12 @@ class YousignApiClient
             ],
         ));
 
-        $response = curl_exec($curl);
-
+        return curl_exec($curl);
         curl_close($curl);
+
     }
 
-    public function createWebhook(Webhook $webhook)
+    public function createWebhook(Webhook $webhook): Webhook
     {
         $requestBodyPayload = $webhook->toJson();
         $curl = curl_init();
@@ -391,16 +393,16 @@ class YousignApiClient
 
         $response = curl_exec($curl);
         $responseArray = json_decode($response, true);
-
         if (!isset($responseArray['id'])) {
             throw new \RuntimeException('Failed to create the webhook: ' . $response);
         }
+
         $webhook->setId($responseArray['id']);
         $webhook->setSecretKey($responseArray['secret_key']);
 
         curl_close($curl);
 
-        return $response;
+        return $webhook;
     }
 
     public function sendManualReminder(string $signatureRequestId, string $signerId): bool
