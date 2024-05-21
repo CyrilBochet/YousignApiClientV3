@@ -14,12 +14,10 @@ namespace YousignApiClient;
 
 
 use CURLFile;
-use http\Exception\BadUrlException;
 use YousignApiClient\Fields\CheckboxField;
 use YousignApiClient\Fields\Field;
 use YousignApiClient\Fields\MentionField;
 use YousignApiClient\Fields\RadioGroup;
-use YousignApiClient\Fields\SignatureField;
 use YousignApiClient\Fields\TextField;
 use YousignApiClient\Webhook\Webhook;
 
@@ -27,13 +25,10 @@ class YousignApiClient
 {
     private string $apikey = '';
     private string $apiBaseUrl;
-    private string $pdfDocumentToSign = '';
     private array $signers = [];
     private array $approvers = [];
     private array $documents = [];
     private SignatureRequest $signatureRequest;
-
-    private array $signatureFields = array();
 
     public function __construct($apikey, $env)
     {
@@ -63,17 +58,6 @@ class YousignApiClient
     public function setApiBaseUrl(string $apiBaseUrl): YousignApiClient
     {
         $this->apiBaseUrl = $apiBaseUrl;
-        return $this;
-    }
-
-    public function getPdfDocumentToSign(): string
-    {
-        return $this->pdfDocumentToSign;
-    }
-
-    public function setPdfDocumentToSign(string $pdfDocumentToSign): YousignApiClient
-    {
-        $this->pdfDocumentToSign = $pdfDocumentToSign;
         return $this;
     }
 
@@ -145,7 +129,6 @@ class YousignApiClient
             ]
         );
         $initiatedSignatureRequestResponse = curl_exec($ch);
-        var_dump($initiatedSignatureRequestResponse);
         $signatureRequestResponseArray = json_decode($initiatedSignatureRequestResponse, true, 512);
         curl_close($ch);
 
@@ -180,7 +163,6 @@ class YousignApiClient
             ]);
 
         $documentUploadedResponse = curl_exec($ch);
-        var_dump($documentUploadedResponse);
         $documentResponseArray = json_decode($documentUploadedResponse, true, 512);
         curl_close($ch);
 
@@ -196,8 +178,6 @@ class YousignApiClient
 
     public function addSigner(Signer $signer): Signer
     {
-        var_dump($signer->toJson());
-
         $ch = curl_init();
         curl_setopt_array(
             $ch,
@@ -213,7 +193,6 @@ class YousignApiClient
             ]
         );
         $response = curl_exec($ch);
-        var_dump($response);
         $responseArray = json_decode($response, true, 512);
         curl_close($ch);
 
@@ -225,10 +204,9 @@ class YousignApiClient
             throw new \RuntimeException('Failed to add signer: ' . $response);
         }
     }
+
     public function addApprover(Approver $approver): Approver
     {
-        var_dump($approver->toJson());
-
         $ch = curl_init();
         curl_setopt_array(
             $ch,
@@ -244,7 +222,6 @@ class YousignApiClient
             ]
         );
         $response = curl_exec($ch);
-        var_dump($response);
         $responseArray = json_decode($response, true, 512);
         curl_close($ch);
 
@@ -275,7 +252,7 @@ class YousignApiClient
         $activatedSignatureRequestResponse = curl_exec($ch);
         $responseArray = json_decode($activatedSignatureRequestResponse, true);
         curl_close($ch);
-        var_dump($responseArray);
+        //TODO: faire mieux
         if (isset($responseArray['signers'][0]['signature_link'])) {
             // Si un lien de signature est retourné dans la réponse, cela signifie que la demande de signature a été envoyée avec succès
             $signer1MagicLink = $responseArray['signers'][0]['signature_link'];
@@ -285,27 +262,6 @@ class YousignApiClient
             throw new \RuntimeException('Failed to send signature request: ' . $activatedSignatureRequestResponse);
         }
     }
-
-
-//    public function addSignatureField(SignatureField $signatureField): void
-//    {
-//        $response = $this->addField($signatureField);
-//
-//        $responseArray = json_decode($response, true);
-//
-//        if (!isset($responseArray['id'])) {
-//            throw new \RuntimeException('Failed to add signature field: ' . $response);
-//        }
-//    }
-
-//    public function addSignatureField(SignatureField $signatureField)
-//    {
-//        if (!in_array($signatureField, $this->signatureFields, true)) {
-//            $this->signatureFields[] = $signatureField;
-//        }
-//
-//        return $this;
-//    }
 
     public function addMentionField(MentionField $mentionField): void
     {
@@ -348,7 +304,6 @@ class YousignApiClient
     private function addField(RadioGroup|Field $field): bool|string
     {
         $requestBodyPayload = $field->toJson();
-        var_dump($requestBodyPayload);
         $ch = curl_init();
         curl_setopt_array(
             $ch,
@@ -363,7 +318,6 @@ class YousignApiClient
                 ],
             ]);
 
-        var_dump($requestBodyPayload);
         $response = curl_exec($ch);
         curl_close($ch);
         return $response;
@@ -389,11 +343,11 @@ class YousignApiClient
                 ),
             ]
         );
-        $response  = curl_exec($ch);
-        var_dump($response);
+        $response = curl_exec($ch);
         curl_close($ch);
     }
-    public function listWebhook()
+
+    public function listWebhooks(): bool|string
     {
         $curl = curl_init();
 
@@ -412,16 +366,15 @@ class YousignApiClient
             ],
         ));
 
-        $response = curl_exec($curl);
-
+        return curl_exec($curl);
         curl_close($curl);
+
     }
 
-    public function createWebhook(Webhook $webhook)
+    public function createWebhook(Webhook $webhook): Webhook
     {
         $requestBodyPayload = $webhook->toJson();
         $curl = curl_init();
-        var_dump($requestBodyPayload);
         curl_setopt_array($curl, array(
             CURLOPT_URL => sprintf('%s/webhooks', $this->getApiBaseUrl()),
             CURLOPT_RETURNTRANSFER => true,
@@ -440,17 +393,16 @@ class YousignApiClient
 
         $response = curl_exec($curl);
         $responseArray = json_decode($response, true);
-
-        var_dump($response);
         if (!isset($responseArray['id'])) {
             throw new \RuntimeException('Failed to create the webhook: ' . $response);
         }
+
         $webhook->setId($responseArray['id']);
         $webhook->setSecretKey($responseArray['secret_key']);
 
         curl_close($curl);
 
-        return $response;
+        return $webhook;
     }
 
     public function sendManualReminder(string $signatureRequestId, string $signerId): bool
@@ -499,10 +451,5 @@ class YousignApiClient
             404 => "Resource not found - The requested resource could not be found.",
             default => "Unexpected response from the server with status code: $status_code",
         };
-    }
-
-    public function getSignaturesFields() : array
-    {
-        return $this->signatureFields;
     }
 }

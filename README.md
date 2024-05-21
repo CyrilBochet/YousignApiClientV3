@@ -1,6 +1,8 @@
 ## CyrilBochet/YousignApiClient
+
 ### README translation
--   [English](README.en.md)
+
+- [English](README.en.md)
 
 > Client API pour <a target="_blank" href="https://yousign.com/fr-fr"> Yousign</a> · solution de signature électronique
 > française.
@@ -167,6 +169,33 @@ $mentionsArray = array(
 ```PHP
  $client->addSigner($signer);
  $client->sendSignatureRequest();
+```
+
+<div id='webhooks'/></div>
+
+### Webhooks
+
+ ```PHP
+use YousignApiClient\Webhook\Scope;
+use YousignApiClient\Webhook\Webhook;
+use YousignApiClient\Webhook\WebhookEvent;
+
+// Nouveau Webhook
+
+$allEvents = new WebhookEvent('*');
+$event = new WebhookEvent('signature_request.done');
+
+$allScopes = new Scope('*');
+$scope = new Scope('public_api');
+
+$webhook = new Webhook(bool $sandbox, bool $autoRetry, bool $enabled, string $endpoint, string $description, array $events, array $scopes);
+$webhook = new Webhook(true, true, true, 'endpoint.fr', 'test', [$allEvents], [$allScopes]);
+
+$client->createWebhook($webhook);
+
+// Liste des Webhooks
+$webhooks = $client->listWebhooks();
+
 ```
 
 <div id='useful-links'/></div>
