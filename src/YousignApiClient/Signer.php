@@ -53,7 +53,7 @@ class Signer
             throw new InvalidArgumentException("Authentication mode must be null for qualified level");
         } elseif($signatureLevel === self::ADVANCED_LEVEL){
             $this->signatureAuthenticationMode = self::OTP_SMS;
-        } elseif ($signatureAuthenticationMode !== null && !in_array($signatureAuthenticationMode, [self::OTP_SMS, self::OTP_EMAIL], true)) {
+        } elseif ($signatureAuthenticationMode !== null && !in_array($signatureAuthenticationMode, [self::OTP_SMS, self::OTP_EMAIL, self::NO_OTP], true)) {
             throw new InvalidArgumentException("Invalid authentication mode");
         }
 
