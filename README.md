@@ -16,6 +16,7 @@
 - [Ajout d'un signataire](#add-signer)
 - [Ajout des champs](#add-fields)
 - [Envoi de la signature](#send-request)
+- [Annuler une requête de signature](#cancel-request)
 - [Liens utiles](#useful-links)
 
 <div id='signature-request'/></div>
@@ -195,6 +196,20 @@ $client->createWebhook($webhook);
 
 // Liste des Webhooks
 $webhooks = $client->listWebhooks();
+
+```
+<div id='cancel-request'/></div>
+
+### Annuler une requête de signature
+
+ ```PHP
+use YousignApiClient\CancellationRequest;
+
+// Nouvelle requête d'annulation
+
+$cancellationRequest = new CancellationRequest(string $reason, string $signatureRequestId, ?string $customNote = null);
+$cancellationRequest = new CancellationRequest('other', 'xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx', 'Note personnalisée');
+$client->cancelRequest($cancellationRequest);
 
 ```
 
