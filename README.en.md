@@ -11,6 +11,7 @@
 - [Adding a Signer](#add-signer)
 - [Adding Fields](#add-fields)
 - [Sending the Request](#send-request)
+- [Cancel a signature request](#cancel-request)
 - [Useful Links](#useful-links)
 
 <div id='signature-request'/></div>
@@ -157,6 +158,32 @@ $mentionsArray = array(
 
 ```
 
+<div id='webhooks'/></div>
+
+### Webhooks
+
+ ```PHP
+use YousignApiClient\Webhook\Scope;
+use YousignApiClient\Webhook\Webhook;
+use YousignApiClient\Webhook\WebhookEvent;
+
+// New Webhook
+
+$allEvents = new WebhookEvent('*');
+$event = new WebhookEvent('signature_request.done');
+
+$allScopes = new Scope('*');
+$scope = new Scope('public_api');
+
+$webhook = new Webhook(bool $sandbox, bool $autoRetry, bool $enabled, string $endpoint, string $description, array $events, array $scopes);
+$webhook = new Webhook(true, true, true, 'endpoint.fr', 'test', [$allEvents], [$allScopes]);
+
+$client->createWebhook($webhook);
+
+// Webhooks list
+$webhooks = $client->listWebhooks();
+```
+
 <div id='send-request'/></div>
 
 ### Adding Signers and Sending the Signature Request
@@ -164,6 +191,20 @@ $mentionsArray = array(
 ```PHP
  $client->addSigner($signer);
  $client->sendSignatureRequest();
+```
+<div id='cancel-request'/></div>
+
+### Cancel a signature request
+
+ ```PHP
+use YousignApiClient\CancellationRequest;
+
+// New cancellation request
+
+$cancellationRequest = new CancellationRequest(string $reason, string $signatureRequestId, ?string $customNote = null);
+$cancellationRequest = new CancellationRequest('other', 'xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx', 'Custom note');
+$client->cancelRequest($cancellationRequest);
+
 ```
 
 <div id='useful-links'/></div>

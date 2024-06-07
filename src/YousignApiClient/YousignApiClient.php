@@ -405,7 +405,7 @@ class YousignApiClient
         return $webhook;
     }
 
-    public function sendManualReminder(string $signatureRequestId, string $signerId): bool
+    public function sendManualReminder(string $signatureRequestId, string $signerId) : string
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -430,6 +430,44 @@ class YousignApiClient
             $result = array(
                 'success' => true,
                 'message' => 'Reminder sent successfully.'
+            );
+        } else {
+            $result = array(
+                'success' => false,
+                'error_code' => $status_code,
+                'error_message' => $this->getErrorMessage($status_code)
+            );
+        }
+
+        return json_encode($result);
+    }
+
+    public function cancelRequest(CancellationRequest $cancelingRequest) : string
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => sprintf('%s/signature_requests/%s/cancel', $this->getApiBaseUrl(), $cancelingRequest->getSignatureRequestId()),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $cancelingRequest->toJson(),
+            CURLOPT_HTTPHEADER => [
+                sprintf('Authorization: Bearer %s', $this->getApikey()),
+                'Content-Type: application/json'
+            ],
+        ));
+
+        curl_exec($curl);
+        $status_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+        if ($status_code === 201) {
+            $result = array(
+                'success' => true,
+                'message' => 'Request canceled successfully.'
             );
         } else {
             $result = array(
