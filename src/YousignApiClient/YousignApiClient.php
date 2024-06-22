@@ -34,7 +34,7 @@ class YousignApiClient
     {
         $this->setApikey($apikey);
         if ($env === 'prod') {
-            $this->apiBaseUrl = 'https://api.yousign.com/v3/';
+            $this->apiBaseUrl = 'https://api.yousign.app/v3';
         } else {
             $this->apiBaseUrl = 'https://api-sandbox.yousign.app/v3/';
         }
