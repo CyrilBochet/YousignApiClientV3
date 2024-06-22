@@ -438,7 +438,7 @@ class YousignApiClient
 
         return json_encode($result);
     }
-    private function downloadSignedDocument(string $signatureRequestId): bool|string
+    public function downloadSignedDocument(string $signatureRequestId): bool|string
     {
         $curl = curl_init();
         curl_setopt_array(
