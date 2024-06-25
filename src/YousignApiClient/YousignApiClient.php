@@ -40,38 +40,9 @@ class YousignApiClient
         }
     }
 
-    public function setApikey($apikey): void
-    {
-        $this->apikey = $apikey;
-    }
-
-    public function getApikey(): string
-    {
-        return $this->apikey;
-    }
-
-    public function getApiBaseUrl(): string
-    {
-        return $this->apiBaseUrl;
-    }
-
-    public function setApiBaseUrl(string $apiBaseUrl): YousignApiClient
-    {
-        $this->apiBaseUrl = $apiBaseUrl;
-        return $this;
-    }
-
     public function getSigners(): array
     {
         return $this->signers;
-    }
-
-    public function addSignerToArray(Signer $signer): self
-    {
-        if (!in_array($signer, $this->signers, true)) {
-            $this->signers[] = $signer;
-        }
-        return $this;
     }
 
     public function getApprovers(): array
@@ -79,38 +50,10 @@ class YousignApiClient
         return $this->approvers;
     }
 
-    public function addApproverToArray(Approver $approver): self
-    {
-        if (!in_array($approver, $this->approvers, true)) {
-            $this->approvers[] = $approver;
-        }
-        return $this;
-    }
-
     public function getDocuments(): array
     {
         return $this->documents;
     }
-
-    public function addDocumentToArray(Document $document): self
-    {
-        if (!in_array($document, $this->documents, true)) {
-            $this->documents[] = $document;
-        }
-        return $this;
-    }
-
-    public function getSignatureRequest(): SignatureRequest
-    {
-        return $this->signatureRequest;
-    }
-
-    public function setSignatureRequest(SignatureRequest $signatureRequest): YousignApiClient
-    {
-        $this->signatureRequest = $signatureRequest;
-        return $this;
-    }
-
 
     public function initiateSignatureRequest(SignatureRequest $signatureRequest): SignatureRequest
     {
@@ -141,6 +84,26 @@ class YousignApiClient
         }
     }
 
+    public function getApiBaseUrl(): string
+    {
+        return $this->apiBaseUrl;
+    }
+
+    public function setApiBaseUrl(string $apiBaseUrl): YousignApiClient
+    {
+        $this->apiBaseUrl = $apiBaseUrl;
+        return $this;
+    }
+
+    public function getApikey(): string
+    {
+        return $this->apikey;
+    }
+
+    public function setApikey($apikey): void
+    {
+        $this->apikey = $apikey;
+    }
 
     public function addDocument(Document $document): Document
     {
@@ -175,6 +138,24 @@ class YousignApiClient
         }
     }
 
+    public function getSignatureRequest(): SignatureRequest
+    {
+        return $this->signatureRequest;
+    }
+
+    public function setSignatureRequest(SignatureRequest $signatureRequest): YousignApiClient
+    {
+        $this->signatureRequest = $signatureRequest;
+        return $this;
+    }
+
+    public function addDocumentToArray(Document $document): self
+    {
+        if (!in_array($document, $this->documents, true)) {
+            $this->documents[] = $document;
+        }
+        return $this;
+    }
 
     public function addSigner(Signer $signer): Signer
     {
@@ -205,6 +186,14 @@ class YousignApiClient
         }
     }
 
+    public function addSignerToArray(Signer $signer): self
+    {
+        if (!in_array($signer, $this->signers, true)) {
+            $this->signers[] = $signer;
+        }
+        return $this;
+    }
+
     public function addApprover(Approver $approver): Approver
     {
         $ch = curl_init();
@@ -232,6 +221,14 @@ class YousignApiClient
         } else {
             throw new \RuntimeException('Failed to add approver: ' . $response);
         }
+    }
+
+    public function addApproverToArray(Approver $approver): self
+    {
+        if (!in_array($approver, $this->approvers, true)) {
+            $this->approvers[] = $approver;
+        }
+        return $this;
     }
 
     public function sendSignatureRequest()
@@ -273,6 +270,28 @@ class YousignApiClient
         }
     }
 
+    private function addField(RadioGroup|Field $field): bool|string
+    {
+        $requestBodyPayload = $field->toJson();
+        $ch = curl_init();
+        curl_setopt_array(
+            $ch,
+            [
+                CURLOPT_URL => sprintf('%s/signature_requests/%s/documents/%s/fields', $this->getApiBaseUrl(), $this->getSignatureRequest()->getId(), $field->getDocumentId()),
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POSTFIELDS => $requestBodyPayload,
+                CURLOPT_HTTPHEADER => [
+                    sprintf('Authorization: Bearer %s', $this->getApikey()),
+                    'Content-Type: application/json'
+                ],
+            ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+
     public function addTextField(TextField $textField): void
     {
         $response = $this->addField($textField);
@@ -299,28 +318,6 @@ class YousignApiClient
 
             throw new \RuntimeException('Failed to add radio group: ' . $response);
         }
-    }
-
-    private function addField(RadioGroup|Field $field): bool|string
-    {
-        $requestBodyPayload = $field->toJson();
-        $ch = curl_init();
-        curl_setopt_array(
-            $ch,
-            [
-                CURLOPT_URL => sprintf('%s/signature_requests/%s/documents/%s/fields', $this->getApiBaseUrl(), $this->getSignatureRequest()->getId(), $field->getDocumentId()),
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POSTFIELDS => $requestBodyPayload,
-                CURLOPT_HTTPHEADER => [
-                    sprintf('Authorization: Bearer %s', $this->getApikey()),
-                    'Content-Type: application/json'
-                ],
-            ]);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-        return $response;
     }
 
     public function downloadAuditTrail(Signer $signer)
@@ -405,7 +402,7 @@ class YousignApiClient
         return $webhook;
     }
 
-    public function sendManualReminder(string $signatureRequestId, string $signerId) : string
+    public function sendManualReminder(string $signatureRequestId, string $signerId): string
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -441,8 +438,38 @@ class YousignApiClient
 
         return json_encode($result);
     }
+    public function downloadSignedDocument(string $signatureRequestId): bool|string
+    {
+        $curl = curl_init();
+        curl_setopt_array(
+            $curl,
+            array(
+                CURLOPT_URL => sprintf('%s/signature_requests/%s/documents/download?version=current', $this->getApiBaseUrl(), $signatureRequestId),
+                CURLOPT_CUSTOMREQUEST => 'GET',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    sprintf('Authorization: Bearer %s', $this->getApikey()),
+                    'accept: application/pdf'
+                ],
+            ));
 
-    public function cancelRequest(CancellationRequest $cancelingRequest) : string
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        return $response;
+    }
+    private function getErrorMessage(int $status_code): string
+    {
+        return match ($status_code) {
+            400 => "Bad request - The server cannot process the request due to a client error.",
+            401 => "Access unauthorized - Authentication is required and has failed or has not yet been provided.",
+            403 => "Access forbidden - The server understood the request but refuses to authorize it.",
+            404 => "Resource not found - The requested resource could not be found.",
+            default => "Unexpected response from the server with status code: $status_code",
+        };
+    }
+
+    public function cancelRequest(CancellationRequest $cancelingRequest): string
     {
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -480,14 +507,5 @@ class YousignApiClient
         return json_encode($result);
     }
 
-    private function getErrorMessage(int $status_code): string
-    {
-        return match ($status_code) {
-            400 => "Bad request - The server cannot process the request due to a client error.",
-            401 => "Access unauthorized - Authentication is required and has failed or has not yet been provided.",
-            403 => "Access forbidden - The server understood the request but refuses to authorize it.",
-            404 => "Resource not found - The requested resource could not be found.",
-            default => "Unexpected response from the server with status code: $status_code",
-        };
-    }
+
 }
