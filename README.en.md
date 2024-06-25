@@ -11,7 +11,7 @@
 - [Adding a Signer](#add-signer)
 - [Adding Fields](#add-fields)
 - [Sending the Request](#send-request)
-- [Récupération du document signé](#download-signed-document)
+- [Retrieve the signed document](#download-signed-document)
 - [Cancel a signature request](#cancel-request)
 - [Useful Links](#useful-links)
 
