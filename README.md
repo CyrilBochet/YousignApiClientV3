@@ -16,6 +16,7 @@
 - [Ajout d'un signataire](#add-signer)
 - [Ajout des champs](#add-fields)
 - [Envoi de la signature](#send-request)
+- [Récupération du document signé](#download-signed-document)
 - [Annuler une requête de signature](#cancel-request)
 - [Liens utiles](#useful-links)
 
@@ -196,6 +197,19 @@ $client->createWebhook($webhook);
 
 // Liste des Webhooks
 $webhooks = $client->listWebhooks();
+
+```
+<div id='download-signed-document'/></div>
+
+### Récupérer le document signé
+
+ ```PHP
+
+$response = $client->downloadSignedDocument(string $signatureRequestId);
+$response = $client->downloadSignedDocument('xxxxxxxxxxxxxxxx');
+$file = fopen('path/to/file.pdf', 'w');
+fwrite($file, $response);
+fclose($file);
 
 ```
 <div id='cancel-request'/></div>
