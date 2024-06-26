@@ -43,7 +43,6 @@ class Signer
             throw new InvalidArgumentException("Invalid email address");
         }
 
-        // Vérification du format du numéro de téléphone s'il est fourni
         if ($phoneNumber !== null) {
             throw new InvalidArgumentException("Invalid phone number");
         }

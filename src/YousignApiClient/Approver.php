@@ -31,8 +31,7 @@ class Approver
             throw new InvalidArgumentException("Invalid email address");
         }
 
-        // Vérification du format du numéro de téléphone s'il est fourni
-        if ($phoneNumber !== null && !preg_match("/^\+\d{11}$/", $phoneNumber)) {
+        if ($phoneNumber !== null) {
             throw new InvalidArgumentException("Invalid phone number");
         }
     }
