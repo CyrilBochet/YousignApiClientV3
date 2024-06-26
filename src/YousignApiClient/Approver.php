@@ -30,10 +30,6 @@ class Approver
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException("Invalid email address");
         }
-
-        if ($phoneNumber !== null) {
-            throw new InvalidArgumentException("Invalid phone number");
-        }
     }
 
     public function getId(): ?string

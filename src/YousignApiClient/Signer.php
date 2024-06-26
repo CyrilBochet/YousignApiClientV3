@@ -43,10 +43,6 @@ class Signer
             throw new InvalidArgumentException("Invalid email address");
         }
 
-        if ($phoneNumber !== null) {
-            throw new InvalidArgumentException("Invalid phone number");
-        }
-
         // Vérification du mode d'authentification saisie
         if ($signatureLevel === self::QUALIFIED_LEVEL && $signatureAuthenticationMode !== null) {
             throw new InvalidArgumentException("Authentication mode must be null for qualified level");
