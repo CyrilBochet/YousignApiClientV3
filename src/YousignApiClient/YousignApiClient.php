@@ -14,6 +14,7 @@ namespace YousignApiClient;
 
 
 use CURLFile;
+use RuntimeException;
 use YousignApiClient\Fields\CheckboxField;
 use YousignApiClient\Fields\Field;
 use YousignApiClient\Fields\MentionField;
@@ -80,7 +81,7 @@ class YousignApiClient
             $this->setSignatureRequest($signatureRequest);
             return $signatureRequest;
         } else {
-            throw new \RuntimeException('Failed to initiate signature request: ' . $initiatedSignatureRequestResponse);
+            throw new RuntimeException('Failed to initiate signature request: ' . $initiatedSignatureRequestResponse);
         }
     }
 
@@ -134,7 +135,7 @@ class YousignApiClient
             $this->addDocumentToArray($document);
             return $document;
         } else {
-            throw new \RuntimeException('Failed to add document: ' . $documentUploadedResponse);
+            throw new RuntimeException('Failed to add document: ' . $documentUploadedResponse);
         }
     }
 
@@ -182,9 +183,68 @@ class YousignApiClient
             $this->addSignerToArray($signer);
             return $signer;
         } else {
-            throw new \RuntimeException('Failed to add signer: ' . $response);
+            throw new RuntimeException('Failed to add signer: ' . $response);
         }
     }
+
+    public function updateSignerInformation (
+        string $signatureRequestId,
+        string $signerId,
+        string $firstName,
+        string $lastName,
+        string $email,
+        string $phoneNumber,
+    ): bool
+    {
+        // Validation des entrées
+        if (empty($signatureRequestId) || empty($signerId) || empty($firstName) || empty($lastName) || empty($email) || empty($phoneNumber)) {
+            throw new \InvalidArgumentException('All parameters must be provided and non-empty.');
+        }
+
+
+        // Data to patch
+        $data = [
+            'info' => [
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $email,
+                'phone_number' => $phoneNumber,
+            ],
+        ];
+
+        $payload = json_encode($data);
+
+        $url = sprintf(
+            '%s/signature_requests/%s/signers/%s',
+            $this->getApiBaseUrl(),
+            $signatureRequestId,
+            $signerId
+        );
+
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_CUSTOMREQUEST => 'PATCH',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_HTTPHEADER => [
+                sprintf('Authorization: Bearer %s', $this->getApikey()),
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ]
+        ]);
+        $response = curl_exec($ch);
+        $responseArray = json_decode($response, true, 512);
+        curl_close($ch);
+
+        if (isset($responseArray['id'])) {
+            return true;
+        } else {
+            throw new \RuntimeException('Failed to update signer: ' . $response);
+        }
+    }
+
 
     public function addSignerToArray(Signer $signer): self
     {
@@ -219,7 +279,7 @@ class YousignApiClient
             $this->addApproverToArray($approver);
             return $approver;
         } else {
-            throw new \RuntimeException('Failed to add approver: ' . $response);
+            throw new RuntimeException('Failed to add approver: ' . $response);
         }
     }
 
@@ -256,7 +316,7 @@ class YousignApiClient
             return $signer1MagicLink;
         } else {
             // Sinon, il y a eu une erreur lors de l'envoi de la demande de signature
-            throw new \RuntimeException('Failed to send signature request: ' . $activatedSignatureRequestResponse);
+            throw new RuntimeException('Failed to send signature request: ' . $activatedSignatureRequestResponse);
         }
     }
 
@@ -266,7 +326,7 @@ class YousignApiClient
         $responseArray = json_decode($response, true, 512);
 
         if (!isset($responseArray['id'])) {
-            throw new \RuntimeException('Failed to add mention field: ' . $response);
+            throw new RuntimeException('Failed to add mention field: ' . $response);
         }
     }
 
@@ -297,7 +357,7 @@ class YousignApiClient
         $response = $this->addField($textField);
         $responseArray = json_decode($response, true, 512);
         if (!isset($responseArray['id'])) {
-            throw new \RuntimeException('Failed to add text field: ' . $response);
+            throw new RuntimeException('Failed to add text field: ' . $response);
         }
     }
 
@@ -306,7 +366,7 @@ class YousignApiClient
         $response = $this->addField($checkboxField);
         $responseArray = json_decode($response, true, 512);
         if (!isset($responseArray['id'])) {
-            throw new \RuntimeException('Failed to add checkbox field: ' . $response);
+            throw new RuntimeException('Failed to add checkbox field: ' . $response);
         }
     }
 
@@ -316,7 +376,7 @@ class YousignApiClient
         $responseArray = json_decode($response, true, 512);
         if (!isset($responseArray['id'])) {
 
-            throw new \RuntimeException('Failed to add radio group: ' . $response);
+            throw new RuntimeException('Failed to add radio group: ' . $response);
         }
     }
 
@@ -391,7 +451,7 @@ class YousignApiClient
         $response = curl_exec($curl);
         $responseArray = json_decode($response, true);
         if (!isset($responseArray['id'])) {
-            throw new \RuntimeException('Failed to create the webhook: ' . $response);
+            throw new RuntimeException('Failed to create the webhook: ' . $response);
         }
 
         $webhook->setId($responseArray['id']);
@@ -438,6 +498,7 @@ class YousignApiClient
 
         return json_encode($result);
     }
+
     public function downloadSignedDocument(string $signatureRequestId): bool|string
     {
         $curl = curl_init();
@@ -458,6 +519,7 @@ class YousignApiClient
 
         return $response;
     }
+
     private function getErrorMessage(int $status_code): string
     {
         return match ($status_code) {
