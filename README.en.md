@@ -9,6 +9,7 @@
 - [Request Initialization](#signature-request)
 - [Adding a Document](#add-doc)
 - [Adding a Signer](#add-signer)
+- [Update signer information](#update-signer)
 - [Adding Fields](#add-fields)
 - [Sending the Request](#send-request)
 - [Retrieve the signed document](#download-signed-document)
@@ -61,6 +62,20 @@ $documentId = $document->getId();
 use YousignApiClient\Signer;
 $signer = new Signer(string $firstName, string $lastName, string $email, ?string $phoneNumber, string $locale, ?string $signatureAuthenticationMode, ?string $signatureLevel);
 $signer = new Signer("Jean", "DUPOND", 'j.dupond@mail.fr', '+33123456789', 'fr', 'otp_sms', 'electronic_signature');
+```
+
+<div id='update-signer'/></div>
+
+### Update signer information
+
+ ```PHP
+use YousignApiClient\YousignApiClient;
+
+$client = new YousignApiClient($apikey, $env);
+$client->updateSignerInformation(string $signatureRequestId, string $signerId, string $firstName, string $lastName, string $email, string $phoneNumber)
+$client->updateSignerInformation('xxxxxxxxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx', 'Jean', 'DUPOND', 'j.dupond@mail.fr', '+33123456789');
+
+
 ```
 
 ### Font Configuration

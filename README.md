@@ -14,6 +14,7 @@
 - [Initialisation de la requête](#signature-request)
 - [Ajout d'un document](#add-doc)
 - [Ajout d'un signataire](#add-signer)
+- [Mettre à jour les informations d'un signataire](#update-signer)
 - [Ajout des champs](#add-fields)
 - [Envoi de la signature](#send-request)
 - [Récupération du document signé](#download-signed-document)
@@ -75,6 +76,20 @@ use YousignApiClient\Font;
 
 $font = new Font(string $family, string $color, int $size = 12);
 $font = new Font('Raleway', '#000000', 9);
+```
+
+<div id='update-signer'/></div>
+
+### Mettre à jour les informations d'un signataire
+
+ ```PHP
+use YousignApiClient\YousignApiClient;
+
+$client = new YousignApiClient($apikey, $env);
+$client->updateSignerInformation(string $signatureRequestId, string $signerId, string $firstName, string $lastName, string $email, string $phoneNumber)
+$client->updateSignerInformation('xxxxxxxxxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx', 'Jean', 'DUPOND', 'j.dupond@mail.fr', '+33123456789');
+
+
 ```
 
 <div id='add-fields'/></div>
@@ -199,6 +214,7 @@ $client->createWebhook($webhook);
 $webhooks = $client->listWebhooks();
 
 ```
+
 <div id='download-signed-document'/></div>
 
 ### Récupérer le document signé
@@ -212,6 +228,7 @@ fwrite($file, $response);
 fclose($file);
 
 ```
+
 <div id='cancel-request'/></div>
 
 ### Annuler une requête de signature
